@@ -2,7 +2,8 @@ import os
 import time
 import random
 from urllib.parse import urlparse
-
+import json
+from pathlib import Path
 import requests
 from tqdm import tqdm
 from bs4 import BeautifulSoup as bs4
@@ -66,22 +67,20 @@ US_STATES = {
 # BS4 Variables
 BASE_URL = "https://locations.tacobell.com"
 OUT_DIR = "downloaded_pages"
-SLEEP_RANGE_SEC = (0.5, 1.5)  # be polite; increase if you see throttling
-TIMEOUT = 30
-
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (compatible; learning-project; +https://example.com/)",
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
 }
+MIN_DELAY = 1.0   # seconds
+MAX_DELAY = 3.0
 
 session = requests.Session()
 session.headers.update(HEADERS)
 
-MIN_DELAY = 1.0   # seconds
-MAX_DELAY = 3.0
 
 def polite_sleep():
     time.sleep(random.uniform(MIN_DELAY, MAX_DELAY))
+
 
 def scrape_cities_for_state(state_abbr: str) -> list[str]:
     url = f"{BASE_URL}/{state_abbr.lower()}.html"
@@ -133,31 +132,10 @@ def main():
             if city:
                 city_stores[state][city] = get_stores(city)
             # print(city_stores[state][city])
-
+    with open("taco_bell_locations.json", "w", encoding="utf-8") as f:
+        json.dump(city_stores, f, indent=2, ensure_ascii=False)
+        
     print(city_stores["AL"]["al/mobile"])
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 if __name__ == "__main__":
