@@ -77,6 +77,11 @@ HEADERS = {
 session = requests.Session()
 session.headers.update(HEADERS)
 
+MIN_DELAY = 1.0   # seconds
+MAX_DELAY = 3.0
+
+def polite_sleep():
+    time.sleep(random.uniform(MIN_DELAY, MAX_DELAY))
 
 def scrape_cities_for_state(state_abbr: str) -> list[str]:
     url = f"{BASE_URL}/{state_abbr.lower()}.html"
@@ -90,8 +95,9 @@ def scrape_cities_for_state(state_abbr: str) -> list[str]:
         city = a.get('href')
         if city:
             cities.append(city)
-
+    polite_sleep()
     return cities
+
 
 def get_cities():
     atlas = {}
@@ -99,6 +105,7 @@ def get_cities():
         city_list = scrape_cities_for_state(st)
         atlas[st] = city_list
     return atlas
+
 
 def get_stores(city_url):
     url = f"{BASE_URL}/{city_url.lower()}.html"
@@ -113,8 +120,9 @@ def get_stores(city_url):
             if store:
                 # print(store.get('href'))
                 stores.append(store.get('href').replace("..", ""))
-
+    polite_sleep()
     return stores
+
 
 def main():
     atlas =get_cities()
